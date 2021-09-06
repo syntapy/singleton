@@ -1,16 +1,29 @@
+import pytest
+import datetime
+from singleton import Singleton
+
 import functools
 make_key = functools._make_key
-import datetime
-from singleton import MSingleton
 
 def get_hash(*args, **kwargs):
     return make_key(args, kwargs, True)
 
-def test_hash():
-    h1=get_hash()
-    h2=get_hash(4, 's')
-    h3=get_hash(4, 't')
-    h4=get_hash(abc=None)
+class args:
+    def __init__(self, *args, **kwargs):
+        self.args=args
+        self.kwargs=kwargs
+
+    def __call__(self):
+        return self.args, self.kwargs
+
+@pytest.fixture
+def args_list():
+
+    alist = []
+    alist.append(args())
+    alist.append(args(4, 's'))
+    alist.append(args(4, 't'))
+    alist.append(args(abc=None))
 
     class F:
         __slots__ = 'a', 'b'
@@ -18,26 +31,41 @@ def test_hash():
     f.a=25
     f.b=datetime.datetime.now()
 
-    h5=get_hash(f)
+    alist.append(args(f))
 
-def test_multiple_classes():
+    return alist
 
-    import pdb
-    pdb.set_trace()
-    v=MSingleton()
-    class A(metaclass=MSingleton()):
-        pass
+def test_hash(args_list):
+    for arg_combo in args_list:
+        args, kwargs = arg_combo()
+        h = get_hash(*args, **kwargs)
+        print(h)
 
-    class B(metaclass=MSingleton()):
-        pass
+def test_multiple_classes(args_list):
 
-    a1=A()
-    b1=B()
-    a2=A()
+    class A(metaclass=Singleton):
+        def __init__(self, *args, **kwargs):
+            pass
 
-    b2=B()
+    class B(metaclass=Singleton):
+        def __init__(self, *args, **kwargs):
+            pass
 
-    assert a1 is a2
-    assert b1 is b2
+    for i in range(1, len(args_list)):
+        args_0, kwargs_0 = args_list[i-1]()
+        args_1, kwargs_1 = args_list[i]()
 
-    assert a2 is not b2
+        a_0a=A(*args_0, **kwargs_0)
+        a_0b=A(*args_0, **kwargs_0)
+        a_1a=A(*args_1, **kwargs_1)
+
+        b_0a=B(*args_0, **kwargs_0)
+        b_1a=B(*args_1, **kwargs_1)
+
+        assert a_0a is a_0b
+        assert a_0a is not a_1a
+        assert a_0a != a_1a
+
+        assert a_0a != b_0a
+        assert b_0a != b_1a
+        assert b_0a is not b_1a
