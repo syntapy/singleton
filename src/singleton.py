@@ -1,7 +1,11 @@
 import functools
+
+
+VERSION = (0, 1, 0, 'dev1')
+__version__ = '.'.join(map(str, VERSION))
+
 make_key = functools._make_key
 
-__version__ = '0.1.0'
 
 class Singleton(type):
     _instances = {}
