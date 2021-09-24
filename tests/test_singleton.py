@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.getcwd()+os.path.sep+'src')
+
 import pytest
 import datetime
 from singleton import Singleton
