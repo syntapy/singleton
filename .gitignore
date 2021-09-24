@@ -4,6 +4,7 @@
 
 # -- gitignore/Python.gitignore --------------------------------------------------------------------------------------
 
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -198,3 +199,6 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+# Vim
+.*.sw[op]
